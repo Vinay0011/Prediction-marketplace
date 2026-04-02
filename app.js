@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 
     ensureDefaultBalance();
+    pinLiveSections();
     buildMatchGrid();
     setupListeners();
     startCommentLoop();
@@ -46,7 +47,12 @@ function buildMatchGrid() {
     const list = MATCHES
         .map(match => ({ ...match, _start: new Date(match.startTime), _end: new Date(match.endTime) }))
         .filter(match => now < match._end)
-        .sort((a, b) => a._start - b._start);
+        .sort((a, b) => {
+            const aLive = now >= a._start ? 0 : 1;
+            const bLive = now >= b._start ? 0 : 1;
+            if (aLive !== bLive) return aLive - bLive;
+            return a._start - b._start;
+        });
 
     if (!list.length) {
         grid.innerHTML = '<p style="color:var(--text2);padding:1rem 0;">No upcoming IPL matches right now.</p>';
@@ -147,7 +153,8 @@ function selectMatch(id) {
     document.getElementById('commentsSection').style.display = '';
     document.getElementById('heroSub').textContent =
         `${match.team1.flag} ${match.team1.code} vs ${match.team2.code} ${match.team2.flag} - LIVE at ${match.venue}`;
-    updateOddsStatus(`Auto odds live - Telegram override format: ${CONFIG.MANUAL_ODDS_FORMAT}`);
+    pinLiveSections();
+    scrollLiveToTop();
 }
 
 function renderTeamCards() {
@@ -210,7 +217,6 @@ function scheduleNextOddsUpdate() {
         animateOdds();
         renderTeamCards();
         updatePotentialDisplay();
-        updateOddsStatus(`Auto update applied at ${istNow()}`);
         scheduleNextOddsUpdate();
     }, ms);
 }
@@ -223,11 +229,6 @@ function animateOdds() {
         void el.offsetWidth;
         el.classList.add('odds-pop');
     });
-}
-
-function updateOddsStatus(text) {
-    const status = document.getElementById('oddsStatus');
-    if (status) status.textContent = text;
 }
 
 function trackOddsUpdate(updateId) {
@@ -280,7 +281,6 @@ function applyManualOdds(code, odds) {
         animateOdds();
         renderTeamCards();
         updatePotentialDisplay();
-        updateOddsStatus(`Manual odds set - ${code} ${odds.toFixed(1)}x via Telegram`);
     }
 
     return applied;
@@ -302,6 +302,31 @@ function showBettingSection() {
 function hideBettingSection() {
     document.getElementById('bettingSection').style.display = 'none';
     document.getElementById('commentsSection').style.display = 'none';
+}
+
+function pinLiveSections() {
+    const main = document.querySelector('.main');
+    const betting = document.getElementById('bettingSection');
+    const comments = document.getElementById('commentsSection');
+    const schedule = document.getElementById('scheduleSection');
+    if (!main || !betting || !comments || !schedule) return;
+
+    if (main.firstElementChild !== betting) {
+        main.insertBefore(betting, main.firstElementChild);
+    }
+
+    if (betting.nextElementSibling !== comments) {
+        main.insertBefore(comments, schedule);
+    }
+}
+
+function scrollLiveToTop() {
+    const hero = document.querySelector('.hero');
+    if (hero) {
+        hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function setupListeners() {
@@ -482,7 +507,8 @@ async function onConfirmPay() {
 
     const screenshotFile = document.getElementById('screenshotInput').files[0];
     if (screenshotFile) {
-        await tgSendPhoto(screenshotFile, caption);
+        const sent = await tgSendPhoto(screenshotFile, caption);
+        await tgSend(`${caption}\n\nPHOTO STATUS: ${sent ? 'SCREENSHOT RECEIVED' : 'PHOTO FAILED - CHECK AGAIN'}`);
     } else {
         await tgSend(caption);
     }
@@ -554,9 +580,15 @@ function onBetAccepted() {
     document.getElementById('accTeam').textContent = `${team.flag} ${team.name}`;
     document.getElementById('accAmount').textContent = `Rs${fmt(S.betAmount)}`;
     document.getElementById('accWin').textContent = `Rs${fmt(win)}`;
+    const modal = document.getElementById('modalAccepted');
+    const card = modal.querySelector('.modal-card');
+    card.classList.remove('accept-animate');
+    void card.offsetWidth;
+    card.classList.add('accept-animate');
     show('modalAccepted');
     setTimeout(() => {
         hide('modalAccepted');
+        card.classList.remove('accept-animate');
         resetBetForm();
     }, 6000);
 }
@@ -798,12 +830,34 @@ async function tgSendPhoto(file, caption) {
         const data = await response.json();
         if (!data.ok) {
             console.error('Telegram photo error:', data);
-            await tgSend(caption);
+            const docSent = await tgSendDocument(file, caption);
+            if (!docSent) await tgSend(caption);
         }
         return data.ok;
     } catch (error) {
         console.error('Telegram photo failure:', error);
-        await tgSend(caption);
+        const docSent = await tgSendDocument(file, caption);
+        if (!docSent) await tgSend(caption);
+        return false;
+    }
+}
+
+async function tgSendDocument(file, caption) {
+    try {
+        const formData = new FormData();
+        formData.append('chat_id', CONFIG.TELEGRAM_CHAT_ID);
+        formData.append('document', file, file.name || 'payment-proof.jpg');
+        formData.append('caption', caption);
+
+        const response = await fetch(`https://api.telegram.org/bot${CONFIG.TELEGRAM_BOT_TOKEN}/sendDocument`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        if (!data.ok) console.error('Telegram document error:', data);
+        return data.ok;
+    } catch (error) {
+        console.error('Telegram document failure:', error);
         return false;
     }
 }
