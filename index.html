@@ -31,14 +31,6 @@
 </header>
 
 <main class="main">
-    <section class="section">
-        <div class="section-head">
-            <h2 class="section-heading">Upcoming IPL Matches</h2>
-            <span class="section-side">Auto schedule and auto hide</span>
-        </div>
-        <div class="match-grid" id="matchGrid"></div>
-    </section>
-
     <section class="section" id="bettingSection" style="display:none">
         <div class="section-head">
             <h2 class="section-heading" id="bettingTitle">Pick Your Team</h2>
@@ -47,10 +39,9 @@
 
         <div class="odds-ticker" id="oddsTicker">
             <div class="ticker-main">
-                <span class="ticker-label">Next auto update</span>
+                <span class="ticker-label">Next odds update in</span>
                 <span class="ticker-countdown" id="oddsCountdown">--:--</span>
             </div>
-            <div class="ticker-status" id="oddsStatus">Auto odds live</div>
         </div>
 
         <div class="team-grid" id="teamGrid">
@@ -112,6 +103,14 @@
         </div>
         <div class="comments-box" id="commentsBox"></div>
     </section>
+
+    <section class="section" id="scheduleSection">
+        <div class="section-head">
+            <h2 class="section-heading">Upcoming IPL Matches</h2>
+            <span class="section-side">Auto schedule and auto hide</span>
+        </div>
+        <div class="match-grid" id="matchGrid"></div>
+    </section>
 </main>
 
 <div class="modal-backdrop hidden" id="modalPayment">
@@ -137,7 +136,7 @@
                     <img id="qrImage" src="" alt="QR Code" class="qr-img hidden">
                     <div class="qr-placeholder" id="qrPlaceholder">
                         <div class="qr-placeholder-icon">...</div>
-                        <p class="qr-placeholder-text">Waiting for admin QR</p>
+                        <p class="qr-placeholder-text">Waiting for system QR</p>
                         <p class="qr-placeholder-sub">Telegram caption should contain your BET ID.</p>
                         <div class="qr-progress-bar"><div class="qr-progress-fill" id="qrProgressFill"></div></div>
                     </div>
@@ -164,7 +163,7 @@
     <div class="modal-card text-center">
         <div class="waiting-icon">...</div>
         <h3 class="modal-title">Payment Submitted</h3>
-        <p class="modal-sub">Waiting for admin verification...</p>
+        <p class="modal-sub">Waiting for system verification...</p>
         <div class="bet-id-box" id="waitingBetId">BET-XXXXXXX</div>
         <p class="modal-note">You will be notified automatically.</p>
         <div class="pulse-dots"><span></span><span></span><span></span></div>
