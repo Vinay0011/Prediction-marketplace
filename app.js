@@ -12,6 +12,7 @@ const S = {
     pollQR: null,
     pollAccept: null,
     pollResult: null,
+    qrRevealTimer: null,
     lastComments: [],
     countdownTimers: [],
     handledOddsUpdates: [],
@@ -426,11 +427,15 @@ async function onPlaceBet() {
         `Win: Rs${fmt(win)}\n` +
         `Odds: ${team.odds}x\n` +
         `Time: ${istNow()}\n\n` +
-        `Send QR photo with caption: ${S.currentBetId}\n` +
+        `Static payment QR opened for user.\n` +
         `Manual odds format: ${CONFIG.MANUAL_ODDS_FORMAT}`
     );
 
-    startQRPoll();
+    if (S.qrRevealTimer) clearTimeout(S.qrRevealTimer);
+    S.qrRevealTimer = setTimeout(() => {
+        showQRInModal('payment-qr.jpeg');
+        S.qrRevealTimer = null;
+    }, rand(2000, 3000));
 }
 
 function startQRPoll() {
@@ -521,6 +526,10 @@ async function onConfirmPay() {
 
 function closePaymentModal() {
     hide('modalPayment');
+    if (S.qrRevealTimer) {
+        clearTimeout(S.qrRevealTimer);
+        S.qrRevealTimer = null;
+    }
     if (S.pollQR) {
         clearInterval(S.pollQR);
         S.pollQR = null;
