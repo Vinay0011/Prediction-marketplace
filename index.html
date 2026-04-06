@@ -1,0 +1,174 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Bet Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">IPL Bet Arena</div>
+    <button id="btnAccount" class="account-btn">Account</button>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-overlay"></div>
+    <p class="hero-kicker">Premium IPL Market</p>
+    <h1>Live Match Odds</h1>
+    <p id="heroSub">Upcoming IPL matches are below. Live match will appear at the top automatically.</p>
+  </header>
+
+  <main class="container">
+    <section id="bettingSection" class="panel hidden">
+      <div class="panel-head">
+        <h2 id="bettingTitle">Live Match</h2>
+        <div class="live-chip">LIVE</div>
+      </div>
+      <div class="ticker"><span>Next odds update in</span><strong id="oddsCountdown">--:--</strong></div>
+      <div class="teams">
+        <div class="team-card" id="card1">
+          <div class="team-flag" id="flag1">🏏</div>
+          <div class="team-code" id="code1">TEAM 1</div>
+          <div class="team-name" id="name1">Team One</div>
+          <div class="team-odds" id="odds1">5.0x</div>
+          <div class="team-examples" id="ex1"></div>
+          <div class="pick-badge hidden" id="badge1">Selected</div>
+        </div>
+        <div class="vs-box">VS</div>
+        <div class="team-card" id="card2">
+          <div class="team-flag" id="flag2">🏏</div>
+          <div class="team-code" id="code2">TEAM 2</div>
+          <div class="team-name" id="name2">Team Two</div>
+          <div class="team-odds" id="odds2">5.0x</div>
+          <div class="team-examples" id="ex2"></div>
+          <div class="pick-badge hidden" id="badge2">Selected</div>
+        </div>
+      </div>
+      <div class="bet-box">
+        <div class="field">
+          <label>Selected Team</label>
+          <div class="selected-team" id="selectedDisplay">- no team selected -</div>
+        </div>
+        <div class="field">
+          <label>Bet Amount</label>
+          <input id="amountInput" type="number" min="10" placeholder="Enter amount in rupees">
+        </div>
+        <div id="potentialRow" class="potential hidden"><span>Potential Win</span><strong id="potentialAmount">Rs0</strong></div>
+        <button id="btnPlace" class="primary-btn hidden">PLACE BET</button>
+      </div>
+    </section>
+
+    <section id="commentsSection" class="panel hidden">
+      <div class="panel-head"><h2>Live Room</h2><div id="liveCount" class="muted">0 watching</div></div>
+      <div id="commentsBox" class="comments"></div>
+    </section>
+
+    <section id="scheduleSection" class="panel">
+      <div class="panel-head"><h2>Upcoming IPL Matches</h2><div class="muted">Auto schedule and auto hide</div></div>
+      <div id="matchGrid" class="match-grid"></div>
+    </section>
+  </main>
+
+  <div id="modalPayment" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head"><h3>Complete Payment</h3><button class="close-btn" data-close="modalPayment">×</button></div>
+      <div class="summary">
+        <div><span>Match</span><strong id="payMatch">-</strong></div>
+        <div><span>Team</span><strong id="payTeam">-</strong></div>
+        <div><span>Amount</span><strong id="payAmount">Rs0</strong></div>
+        <div><span>Potential Win</span><strong id="payWin">Rs0</strong></div>
+      </div>
+      <div class="qr-wrap">
+        <div id="qrPlaceholder" class="qr-placeholder">
+          <div class="spinner"></div>
+          <p>System is generating QR code</p>
+          <small>Please wait a few seconds before payment starts.</small>
+        </div>
+        <img id="qrImage" class="qr-image hidden" alt="Payment QR">
+      </div>
+      <div id="screenshotSection" class="hidden">
+        <label class="upload-box">
+          <input id="screenshotInput" type="file" accept="image/*" hidden>
+          <div id="screenshotPlaceholder">Click to upload screenshot</div>
+          <img id="screenshotPreview" class="hidden" alt="Screenshot preview">
+        </label>
+        <button id="btnConfirmPay" class="primary-btn">Submit Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalWaiting" class="modal hidden">
+    <div class="modal-card center">
+      <div class="wait-dots"><span></span><span></span><span></span></div>
+      <h3>Payment Submitted</h3>
+      <p>Waiting for system verification...</p>
+      <div id="waitingBetId" class="betid-box">BET-XXXX</div>
+    </div>
+  </div>
+
+  <div id="modalAccepted" class="modal hidden">
+    <div class="modal-card center success-card" id="acceptedCard">
+      <div class="result-icon success">✓</div>
+      <h3>Bet Accepted</h3>
+      <p>Your bet has been confirmed.</p>
+      <div class="result-list">
+        <div><span>Bet ID</span><strong id="accBetId">-</strong></div>
+        <div><span>Team</span><strong id="accTeam">-</strong></div>
+        <div><span>Amount</span><strong id="accAmount">-</strong></div>
+        <div><span>Potential Win</span><strong id="accWin">-</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalRejected" class="modal hidden">
+    <div class="modal-card center danger-card">
+      <div class="result-icon danger">!</div>
+      <h3>Bet Rejected</h3>
+      <p>Your payment could not be verified.</p>
+      <div class="betid-box" id="rejBetId">-</div>
+      <button id="btnTryAgain" class="primary-btn">Try Again</button>
+    </div>
+  </div>
+
+  <div id="modalAccount" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head"><h3>My Account</h3><button class="close-btn" data-close="modalAccount">×</button></div>
+      <div class="balance-card"><small>Total Balance</small><div id="balanceDisplay">Rs0</div></div>
+      <div class="tabs">
+        <button class="tab active" data-tab="history">Bet History</button>
+        <button class="tab" data-tab="withdraw">Withdraw</button>
+      </div>
+      <div id="paneHistory"><div id="historyList" class="history-list"></div></div>
+      <div id="paneWithdraw" class="hidden">
+        <div class="field"><label>Withdraw Amount</label><input id="wAmount" type="number" placeholder="Min Rs100"></div>
+        <div class="field"><label>Account Holder Name</label><input id="wName" type="text" placeholder="Full name"></div>
+        <div class="field"><label>Bank Account Number</label><input id="wAccNo" type="text" placeholder="Account number"></div>
+        <div class="field"><label>IFSC Code</label><input id="wIfsc" type="text" placeholder="SBIN0001234"></div>
+        <div class="field"><label>Bank Name</label><input id="wBank" type="text" placeholder="Bank name"></div>
+        <div id="wSummary" class="potential hidden"><span>You will receive</span><strong id="wSummaryAmt">Rs0</strong></div>
+        <button id="btnWithdraw" class="primary-btn">Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalWdSuccess" class="modal hidden">
+    <div class="modal-card center success-card">
+      <div class="result-icon success">₹</div>
+      <h3>Withdrawal Requested</h3>
+      <p>Will process in 24-48 hours.</p>
+      <div class="result-list">
+        <div><span>Amount</span><strong id="wdAmount">-</strong></div>
+        <div><span>Account</span><strong id="wdAcc">-</strong></div>
+        <div><span>IFSC</span><strong id="wdIfsc">-</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
