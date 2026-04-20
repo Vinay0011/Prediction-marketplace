@@ -49,7 +49,7 @@ const MATCHES = [
   { id: 'ipl-27', matchNo: 27, t1: 'SRH', t2: 'CSK', venue: 'Hyderabad', start: '2026-04-18 19:30', end: '2026-04-18 23:30' },
   { id: 'ipl-28', matchNo: 28, t1: 'KKR', t2: 'RR', venue: 'Kolkata', start: '2026-04-19 15:30', end: '2026-04-19 19:15' },
   { id: 'ipl-29', matchNo: 29, t1: 'PBKS', t2: 'LSG', venue: 'New Chandigarh', start: '2026-04-19 19:30', end: '2026-04-19 23:30' },
-  { id: 'ipl-30', matchNo: 30, t1: 'GT', t2: 'MI', venue: 'Ahmedabad', start: '2026-04-20 19:30', end: '2026-04-20 23:30' },
+  { id: 'ipl-30', matchNo: 30, t1: 'GT', t2: 'MI', venue: 'Ahmedabad', start: '2026-04-20 15:30', end: '2026-04-20 19:30' },
   { id: 'ipl-31', matchNo: 31, t1: 'SRH', t2: 'DC', venue: 'Hyderabad', start: '2026-04-21 19:30', end: '2026-04-21 23:30' },
   { id: 'ipl-32', matchNo: 32, t1: 'LSG', t2: 'RR', venue: 'Lucknow', start: '2026-04-22 19:30', end: '2026-04-22 23:30' },
   { id: 'ipl-33', matchNo: 33, t1: 'MI', t2: 'CSK', venue: 'Mumbai', start: '2026-04-23 19:30', end: '2026-04-23 23:30' },
